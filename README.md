@@ -19,6 +19,16 @@ Railgun determines the order instead of you to execute your tasks for effective 
 ## Examples
 Under construction...
 
+## Build
+If you have GPU on remote machine, please execute deploy.sh.
+```
+./deploy.sh [REMOTE_HOST] [REMOTE_DIR]
+```
+REMOTE_HOST:host which you execute the program. GPU is needed. ex)foo@example.com or IP address  
+REMOTE_DIR:directory you deploy the program. ex) /home/yourname/projects
+
+If you develop the program on a host has GPU, just execute make command.
+
 ## Contributing
 Send a pull request to <http://github.com/rk0der/railgun>.  We consider
 you have granted non-exclusive right to your contributed code under
