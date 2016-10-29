@@ -9,7 +9,7 @@ dump_args(railgun_args* args)
   printf("railgun_args:\n");
   printf("argc: %d\n", args->argc);
   for (i = 0; i < args->argc; i++) {
-    railgun_value v;
+    railgun_data v;
 
     printf("argv[%d]:\n", i);
     v = args->argv[i];

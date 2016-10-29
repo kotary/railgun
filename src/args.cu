@@ -9,13 +9,13 @@ _wrap_args(const char *fmt, ...)
   char c;
   va_list ap;
   railgun_args* args;
-  railgun_value* argv;
+  railgun_data* argv;
 
   args = (railgun_args*)malloc(sizeof(railgun_args));
 
   len = strlen(fmt);
   args->argc = len;
-  argv = (railgun_value*)malloc(sizeof(railgun_value) * len);
+  argv = (railgun_data*)malloc(sizeof(railgun_data) * len);
   args->argv = argv;
 
   va_start(ap, fmt);

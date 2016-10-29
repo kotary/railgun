@@ -8,21 +8,21 @@
 /* ----- type::args ----- */
 typedef enum {
   TYPE_INT_P,
-} railgun_value_type;
+} railgun_data_type;
 
 typedef struct {
-  railgun_value_type type;
+  railgun_data_type type;
   union {
     int* ip;
     float* fp;
     double* dp;
   } d;
   int n;
-} railgun_value;
+} railgun_data;
 
 typedef struct {
   int argc;
-  railgun_value* argv;
+  railgun_data* argv;
 } railgun_args;
 
 typedef struct {
