@@ -21,6 +21,7 @@ typedef struct {
 } railgun_data;
 
 typedef struct {
+  const char *fmt;
   int argc;
   railgun_data* argv;
 } railgun_args;

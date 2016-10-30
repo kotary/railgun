@@ -12,7 +12,7 @@ _wrap_args(const char *fmt, ...)
   railgun_data* argv;
 
   args = (railgun_args*)malloc(sizeof(railgun_args));
-
+  args->fmt = fmt;
   len = strlen(fmt);
   args->argc = len;
   argv = (railgun_data*)malloc(sizeof(railgun_data) * len);

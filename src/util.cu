@@ -14,7 +14,9 @@
 void
 dump_args(railgun_args* args)
 {
+  char* cp;
   printf("railgun_args:\n");
+  printf("format:%s\n", args->fmt);
   printf("argc: %d\n", args->argc);
   for (int i = 0; i < args->argc; i++) {
     railgun_data v;
