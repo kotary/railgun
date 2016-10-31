@@ -31,7 +31,7 @@ int main(void)
   rg = get_railgun();
   railgun->init();
 
-  args = rg->wrap_args("iii", *a, N, *b, N, *c, N);
+  args = rg->wrap_args("ii|i", *a, N, *b, N, *c, N);
   tid = rg->schedule(matrix_add, args);
   rg->sync();
 
