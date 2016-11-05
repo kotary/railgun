@@ -3,6 +3,17 @@
 
 #define N 20
 
+__global__ void
+matrix_add(int* a, int* b, int* c)
+{
+  int i;
+
+  i = threadIdx.x;
+  if (i < N) {
+    c[i] = a[i] + b[i];
+  }
+}
+
 int
 main(void)
 {
@@ -23,6 +34,7 @@ main(void)
   args = rg->wrap_args("ii|i", a, N, b, N, c, N);
 
   dump_args(args);
+  rg->schedule((void*)matrix_add, args);
 
   return 0;
 }

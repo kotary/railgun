@@ -33,15 +33,22 @@ typedef struct {
 } railgun_args;
 
 typedef struct {
+  railgun_args *args;
+  void *f;
+} railgun_task;
+
+typedef struct {
   int (*init)(void);
   int (*get_count)(void);
   railgun_args* (*wrap_args)(const char*, ...);
+  int (*schedule)(void*, railgun_args*);
 } railgun_t;
 
 /* ----- protoypes ----- */
 railgun_t* get_railgun(void);
 
 railgun_args* _wrap_args(const char* fmt, ...);
+int _schedule(void* f, railgun_args* args);
 
 void dump_args(railgun_args* args);
 
