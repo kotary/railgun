@@ -18,9 +18,9 @@ main(void)
     b[i] = i % 10;
   }
 
-  args = rg->wrap_args("iii", a, N, b, N, c, N);
-
   printf("Testing...\n");
+
+  args = rg->wrap_args("ii|i", a, N, b, N, c, N);
 
   dump_args(args);
 
