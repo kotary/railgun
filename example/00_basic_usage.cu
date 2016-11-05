@@ -8,7 +8,7 @@ matrix_add(int* a, int* b, int* c)
 {
   int i;
 
-  i = threadIdx.x
+  i = threadIdx.x;
   if (i < N) {
     c[i] = a[i] + b[i];
   }
@@ -34,5 +34,4 @@ int main(void)
   args = rg->wrap_args("ii|i", *a, N, *b, N, *c, N);
   tid = rg->schedule(matrix_add, args);
   rg->sync();
-
 }
