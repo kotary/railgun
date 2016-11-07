@@ -1,3 +1,7 @@
+if [ $# -ne 2 ]; then
+  echo "Usage: ./deploy.sh [REMOTE_HOST] [REMOTE_DIR]"
+  exit 1;
+fi
 REMOTE_HOST=$1
 REMOTE_DIR=$2
 
