@@ -22,10 +22,11 @@ Under construction...
 ## Build
 If you have GPU on remote machine, please execute deploy.sh.
 ```
-./deploy.sh [REMOTE_HOST] [REMOTE_DIR]
+./deploy.sh [REMOTE_HOST] [REMOTE_DIR] [MAIN_FILE]
 ```
 REMOTE_HOST:host which you execute the program. GPU is needed. ex)foo@example.com or IP address  
 REMOTE_DIR:directory you deploy the program. ex) /home/yourname/projects
+MAIN_FILE:file includes the main function
 
 If you develop the program on a host has GPU, just execute make command.
 
