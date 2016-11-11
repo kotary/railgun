@@ -42,6 +42,8 @@ _wrap_args(const char *fmt, ...)
       argv->d.dp = va_arg(ap, double*);
       argv->n = va_arg(ap, int);
       break;
+    case 'I':
+      break;
     default:
       break;
     }

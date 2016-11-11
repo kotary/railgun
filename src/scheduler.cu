@@ -28,6 +28,7 @@ get_data_size(railgun_data_type t)
 {
   switch (t) {
   case RG_TYPE_INT_P:
+  case RG_TYPE_INT:
     return sizeof(int);
   case RG_TYPE_DOUBLE_P:
     return sizeof(double);
@@ -40,6 +41,7 @@ typedef void (*iii_f)(int*, int*, int*);
 typedef void (*ii_f)(int*, int*);
 typedef void (*dd_f)(double*, double*);
 typedef void (*ddd_f)(double*, double*, double*);
+typedef void (*Iddd_f)(int, double*, double*, double*);
 
 void
 execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
@@ -68,6 +70,9 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
       if (d->dir == RG_DIR_DOWNLOAD)
         cudaMemcpyAsync(mem[i].dp, d->d.dp, size, cudaMemcpyHostToDevice, *strm);
       break;
+    case RG_TYPE_INT:
+      mem[i].i = d->d.i;
+      break;
     default:
       break;
     }
@@ -83,6 +88,8 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
     ((dd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp);
   } else if (!strcmp(fmt, "dd|d")) {
     ((ddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp, mem[2].dp);
+  } else if (!strcmp(fmt, "Idd|d")) {
+    ((Iddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].i, mem[1].dp, mem[2].dp, mem[3].dp);
   }
 
   // readback
@@ -97,6 +104,9 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
       case RG_TYPE_DOUBLE_P:
         // printf("device: d->d.dp = %p\n", d->d.dp);
         cudaMemcpyAsync(d->d.dp, mem[i].dp, size, cudaMemcpyDeviceToHost, *strm);
+        break;
+      case RG_TYPE_INT:
+        d->d.i = mem[i].i;
         break;
       default:
         break;

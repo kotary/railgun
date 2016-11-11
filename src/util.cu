@@ -10,7 +10,7 @@
   printf("\tvalues:\n");\
   for (int i = 0; i < len; i++) {\
     printf("\t\t");\
-    printf(format, ptr[i]);\
+    printf(format, (ptr)[i]);\
     printf("\n");}
 
 void
@@ -33,6 +33,10 @@ dump_args(railgun_args* args)
     case RG_TYPE_DOUBLE_P:
       print_header("double*", v.dir, v.n);
       print_values("%lf", v.d.dp, v.n);
+      break;
+    case RG_TYPE_INT:
+      print_header("int", v.dir, v.n);
+      print_values("%d", &(v.d.i), v.n);
       break;
     default:
       break;

@@ -10,6 +10,7 @@
 typedef enum {
   RG_TYPE_INT_P,
   RG_TYPE_DOUBLE_P,
+  RG_TYPE_INT,
 } railgun_data_type;
 
 typedef enum {
