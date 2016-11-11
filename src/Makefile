@@ -11,7 +11,7 @@ all: $(TARGET)
 
 $(TARGET):
 	mkdir -p "$$(dirname $(TARGET))"
-	$(CXX) $(CXXFLAGS) --cuda-path=/opt/cuda -L/opt/cuda/lib64 -I./ -o $(TARGET) *.cu $(MAIN) $(LIBS)
+	$(CXX) $(CXXFLAGS) --cuda-path=/opt/cuda -L/opt/cuda/lib64 -I./ -o $(TARGET) *.cu $(MAIN) -O3 $(LIBS)
 
 clean:
 	$(RM) $(TARGET)
