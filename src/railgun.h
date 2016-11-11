@@ -17,14 +17,17 @@ typedef enum {
   RG_DIR_READBACK,
 } railgun_data_dir;
 
+typedef union {
+  int i;
+  int *ip;
+  float *fp;
+  double *dp;
+} railgun_memory;
+
 typedef struct {
   railgun_data_type type;
   railgun_data_dir dir;
-  union {
-    int *ip;
-    float *fp;
-    double *dp;
-  } d;
+  railgun_memory d;
   int n;
 } railgun_data;
 
@@ -40,12 +43,6 @@ typedef struct {
   dim3 blocks;
   dim3 threads;
 } railgun_task;
-
-typedef union {
-  int *ip;
-  float *fp;
-  double *dp;
-} railgun_memory;
 
 typedef struct {
   int (*init)(void);
