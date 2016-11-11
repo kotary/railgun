@@ -8,5 +8,6 @@ get_railgun(void)
 {
   gRailgun.wrap_args = _wrap_args;
   gRailgun.schedule = _schedule;
+  gRailgun.execute = _execute;
   return &gRailgun;
 }

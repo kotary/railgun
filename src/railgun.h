@@ -2,6 +2,7 @@
 #define _RAILGUN_H_
 
 #include <stdarg.h>
+#include <cuda_runtime.h>
 
 #define SCHEDULE_INTERVAL 10000 // micro second
 
@@ -36,6 +37,8 @@ typedef struct {
 typedef struct {
   railgun_args *args;
   void *f;
+  dim3 blocks;
+  dim3 threads;
 } railgun_task;
 
 typedef union {
@@ -48,7 +51,7 @@ typedef struct {
   int (*init)(void);
   int (*get_count)(void);
   railgun_args* (*wrap_args)(const char*, ...);
-  int (*schedule)(void*, railgun_args*);
+  int (*schedule)(void*, railgun_args*, dim3, dim3);
   int (*execute)();
 } railgun_t;
 
@@ -56,7 +59,7 @@ typedef struct {
 railgun_t* get_railgun(void);
 
 railgun_args* _wrap_args(const char* fmt, ...);
-int _schedule(void* f, railgun_args* args);
+int _schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads);
 int _execute();
 
 void dump_args(railgun_args* args);
