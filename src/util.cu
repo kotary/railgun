@@ -30,6 +30,10 @@ dump_args(railgun_args* args)
       print_header("int*", v.dir, v.n);
       print_values("%d", v.d.ip, v.n);
       break;
+    case RG_TYPE_DOUBLE_P:
+      print_header("double*", v.dir, v.n);
+      print_values("%lf", v.d.dp, v.n);
+      break;
     default:
       break;
     }

@@ -36,6 +36,12 @@ _wrap_args(const char *fmt, ...)
       argv->d.ip = va_arg(ap, int*);
       argv->n = va_arg(ap, int);
       break;
+    case 'd':
+      argv->type = RG_TYPE_DOUBLE_P;
+      argv->dir = dir;
+      argv->d.dp = va_arg(ap, double*);
+      argv->n = va_arg(ap, int);
+      break;
     default:
       break;
     }
