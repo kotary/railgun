@@ -80,15 +80,15 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
 
   // execute
   fmt = args->fmt;
-  if (!strcmp(fmt, "ii|i")) {
+  if (!strcmp(fmt, "iii")) {
     ((iii_f)task->f)<<<task->blocks, task->threads>>>(mem[0].ip, mem[1].ip, mem[2].ip);
-  } else if (!strcmp(fmt, "i|i")) {
+  } else if (!strcmp(fmt, "ii")) {
     ((ii_f)task->f)<<<task->blocks, task->threads>>>(mem[0].ip, mem[1].ip);
-  } else if (!strcmp(fmt, "d|d")) {
+  } else if (!strcmp(fmt, "dd")) {
     ((dd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp);
-  } else if (!strcmp(fmt, "dd|d")) {
+  } else if (!strcmp(fmt, "ddd")) {
     ((ddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp, mem[2].dp);
-  } else if (!strcmp(fmt, "Idd|d")) {
+  } else if (!strcmp(fmt, "Iddd")) {
     ((Iddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].i, mem[1].dp, mem[2].dp, mem[3].dp);
   }
 

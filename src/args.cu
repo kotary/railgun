@@ -2,18 +2,27 @@
 #include <stdarg.h>
 #include <string.h>
 
+void
+remove_char(const char* src, const char c, char* dst)
+{
+  const char *p;
+  for (p = src; *p != '\0'; p++) {
+    if (*p != c)
+      *dst++ = *p;
+  }
+}
+
 railgun_args*
 _wrap_args(const char *fmt, ...)
 {
   int argc;
-  char c;
+  char c, *fmt_new;
   va_list ap;
   railgun_data_dir dir;
   railgun_args* args;
   railgun_data* argv;
 
   args = (railgun_args*)malloc(sizeof(railgun_args));
-  args->fmt = fmt;
   argc = strlen(fmt);
   if (strchr(fmt, '|') != NULL) {
     argc = strlen(fmt) - 1;
@@ -53,6 +62,10 @@ _wrap_args(const char *fmt, ...)
     }
     argv++;
   }
+
+  fmt_new = (char*)malloc((argc + 1) * sizeof(char));
+  remove_char(fmt, '|', fmt_new);
+  args->fmt = fmt;
 
   return args;
 }
