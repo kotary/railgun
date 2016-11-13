@@ -43,6 +43,10 @@ _wrap_args(const char *fmt, ...)
       argv->n = va_arg(ap, int);
       break;
     case 'I':
+      argv->type = RG_TYPE_INT;
+      argv->dir = dir;
+      argv->d.i = va_arg(ap, int);
+      argv->n = va_arg(ap, int);
       break;
     default:
       break;
