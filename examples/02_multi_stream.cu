@@ -79,6 +79,12 @@ main(void)
   for (i = 0; i < 10; i++) {
     printf("hc0[%d]=%lf\n", i, hc0[i]);
   }
+  for (i = 0; i < 10; i++) {
+    printf("hc1[%d]=%lf\n", i, hc0[i]);
+  }
+  for (i = 0; i < 10; i++) {
+    printf("hc0[%d]=%lf\n", i, hc0[i]);
+  }
 
   return 0;
 }
