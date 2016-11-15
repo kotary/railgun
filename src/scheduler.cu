@@ -183,7 +183,7 @@ _execute()
     free(mems[i]);
     cudaStreamDestroy(strms[i]);
   }
-  free(mems);
+  // free(mems);
   free(strms);
 
   return 0;
