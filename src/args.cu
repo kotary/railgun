@@ -1,4 +1,5 @@
 #include "railgun.h"
+#include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 
@@ -17,6 +18,7 @@ _wrap_args(const char *fmt, ...)
 {
   int argc;
   char c, *fmt_new;
+  const char *p;
   va_list ap;
   railgun_data_dir dir;
   railgun_args* args;
@@ -32,11 +34,12 @@ _wrap_args(const char *fmt, ...)
   args->argv = argv;
   dir = RG_DIR_DOWNLOAD;
 
+  p = fmt;
   va_start(ap, fmt);
-  while ((c = *fmt++)) {
+  while ((c = *p++)) {
     if (c == '|') {
       dir = RG_DIR_READBACK;
-      c = *fmt++;
+      c = *p++;
     }
     switch (c) {
     case 'i':
@@ -65,7 +68,7 @@ _wrap_args(const char *fmt, ...)
 
   fmt_new = (char*)malloc((argc + 1) * sizeof(char));
   remove_char(fmt, '|', fmt_new);
-  args->fmt = fmt;
+  args->fmt = fmt_new;
 
   return args;
 }
