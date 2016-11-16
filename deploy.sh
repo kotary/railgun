@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ $# -ne 3 ]; then
   echo "Usage: ./deploy.sh [REMOTE_HOST] [REMOTE_DIR] [MAIN_FILE]"
   exit 1;
