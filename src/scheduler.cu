@@ -180,7 +180,7 @@ _execute()
 
   // free railgun_memory(on GPU) and stream
   for (i = 0; i < n; i++) {
-    free(mems[i]);
+    // free(mems[i]);
     cudaStreamDestroy(strms[i]);
   }
   // free(mems);
