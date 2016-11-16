@@ -19,9 +19,13 @@ typedef enum {
 } railgun_data_dir;
 
 typedef union {
+  char c;
+  char *cp;
   int i;
   int *ip;
+  float f;
   float *fp;
+  double d;
   double *dp;
 } railgun_memory;
 
