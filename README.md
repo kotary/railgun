@@ -1,6 +1,8 @@
 # Railgun
 
 [![Gitter](https://badges.gitter.im/rk0der/railgun.svg)](https://gitter.im/rk0der/railgun?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![The MIT License](https://img.shields.io/badge/license-MIT-orange.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+
 
 ```
 +++
