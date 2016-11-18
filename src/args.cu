@@ -60,6 +60,12 @@ _wrap_args(const char *fmt, ...)
       argv->d.i = va_arg(ap, int);
       argv->n = va_arg(ap, int);
       break;
+    case 'D':
+      argv->type = RG_TYPE_DOUBLE;
+      argv->dir = dir;
+      argv->d.i = va_arg(ap, double);
+      argv->n = va_arg(ap, int);
+      break;
     default:
       break;
     }

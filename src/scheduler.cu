@@ -31,6 +31,7 @@ get_data_size(railgun_data_type t)
   case RG_TYPE_INT:
     return sizeof(int);
   case RG_TYPE_DOUBLE_P:
+  case RG_TYPE_DOUBLE:
     return sizeof(double);
   default:
     return 0;
@@ -73,6 +74,9 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
     case RG_TYPE_INT:
       mem[i].i = d->d.i;
       break;
+    case RG_TYPE_DOUBLE:
+      mem[i].d = d->d.d;
+      break;
     default:
       break;
     }
@@ -108,6 +112,8 @@ execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
       case RG_TYPE_INT:
         d->d.i = mem[i].i;
         break;
+      case RG_TYPE_DOUBLE:
+        d->d.d = mem[i].d;
       default:
         break;
       }
