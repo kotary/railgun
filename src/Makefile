@@ -2,16 +2,29 @@ CXX = clang++
 TOP = ..
 TARGET = $(TOP)/bin/railgun
 MAIN = $(TOP)/$(APP)
-CXXFLAGS = -Werror
-LIBS = -lcudart -lpthread
+OBJGEN = $(TOP)/scripts/defunc.rb
+OBJDIR = obj
+EXSRC = $(OBJDIR)/defunc.cu
+EXOBJ = $(EXSRC:.cu=.o)
+CXXFLAGS = -Werror --cuda-path=/opt/cuda
+LIBS = -lcudart -lpthread -lgc
 
-.PHONY: all clean
 
 all: $(TARGET)
 
-$(TARGET):
+.PHONY: all
+
+$(TARGET): $(EXOBJ)
 	mkdir -p "$$(dirname $(TARGET))"
-	$(CXX) $(CXXFLAGS) --cuda-path=/opt/cuda -L/opt/cuda/lib64 -I./ -o $(TARGET) *.cu $(MAIN) -O3 $(LIBS)
+	$(CXX) $(CXXFLAGS) -L/opt/cuda/lib64 -I./ -o $(TARGET) *.cu $(MAIN) $(EXOBJ) $(LIBS)
+
+$(EXOBJ):
+	mkdir -p $(OBJDIR)
+	$(OBJGEN) 4 > $(EXSRC)
+	$(CXX) $(CXXFLAGS) -I./ -c $(EXSRC)
+	mv $$(basename $(EXOBJ)) $(EXOBJ)
+	rm -f defunc*
 
 clean:
-	$(RM) $(TARGET)
+	rm -f $(TARGET)
+.PHONY: clean
