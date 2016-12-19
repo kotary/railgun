@@ -3,8 +3,13 @@
 #include <string.h>
 #include <cuda_runtime.h>
 #include <queue>
+#include <gc.h>
 
 std::queue<railgun_task*> tq;
+#define malloc GC_malloc
+#define realloc GC_realloc
+#define calloc(m,n) GC_malloc((m)*(n))
+#define free
 
 int
 _schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads)
