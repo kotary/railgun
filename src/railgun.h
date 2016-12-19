@@ -50,6 +50,7 @@ typedef struct {
   void *f;
   dim3 blocks;
   dim3 threads;
+  int total;
 } railgun_task;
 
 typedef struct {

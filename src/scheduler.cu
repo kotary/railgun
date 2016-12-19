@@ -5,23 +5,23 @@
 #include <queue>
 #include <gc.h>
 
-std::queue<railgun_task*> tq;
 #define malloc GC_malloc
 #define realloc GC_realloc
 #define calloc(m,n) GC_malloc((m)*(n))
 #define free
 
+std::queue<railgun_task> tq;
+
 int
 _schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads)
 {
-  railgun_task* t;
+  railgun_task t;
 
-  t = (railgun_task*)malloc(sizeof(railgun_task));
-
-  t->f = f;
-  t->args = args;
-  t->blocks = blocks;
-  t->threads = threads;
+  t.f = f;
+  t.args = args;
+  t.blocks = blocks;
+  t.threads = threads;
+  t.total = 0;
 
   tq.push(t);
 
@@ -125,6 +125,77 @@ execute_task(railgun_task* t, railgun_memory* mem, cudaStream_t* strm)
   }
   // err = cudaMemcpy(argv[3].d.fp, dc, argv[3].n * sizeof(float), cudaMemcpyDeviceToHost);
 
+  return;
+}
+
+void
+execute_tasks_bf(int n, railgun_task* ts, railgun_memory** mems, cudaStream_t* strms)
+{
+  int i, j, argc;
+  cudaError_t err = cudaSuccess;
+  size_t size;
+  railgun_args *args;
+  railgun_data *argv, *d;
+
+  // Phase 00: Pre-Processing
+
+  // Phase 01: Data Transfer(CPU -> GPU)
+  for (i = 0; i < n; i++) {
+    args = ts[i].args;
+    argc = args->argc;
+    argv = args->argv;
+    for (j = 0; j < argc; j++) {
+      d = &argv[j];
+      size = d->n * get_data_size(d->type);
+      switch (d->type) {
+        case RG_TYPE_FLOAT_P:
+          cudaMalloc((void**)&(mems[i][j].fp), size);
+          if (d->dir == RG_DIR_DOWNLOAD)
+            cudaMemcpyAsync(mems[i][j].fp, d->d.fp, size, cudaMemcpyHostToDevice, strms[i]);
+          break;
+        case RG_TYPE_DOUBLE_P:
+          cudaMalloc((void**)&(mems[i][j].dp), size);
+          if (d->dir == RG_DIR_DOWNLOAD)
+            cudaMemcpyAsync(mems[i][j].dp, d->d.dp, size, cudaMemcpyHostToDevice, strms[i]);
+          break;
+        case RG_TYPE_INT:
+          mems[i][j].i = d->d.i;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  // Phase 02: Kernel Execution
+  for (i = 0; i < n; i++) {
+    ((void (*)(int,float*,float*,float*))ts[i].f)<<<ts[i].blocks, ts[i].threads, 0, strms[i]>>>(mems[i][0].i, mems[i][1].fp, mems[i][2].fp, mems[i][3].fp);
+  }
+
+  // Phase 03: Data Transfer(GPU -> CPU)
+  for (i = 0; i < n; i++) {
+    args = ts[i].args;
+    argc = args->argc;
+    argv = args->argv;
+    for (j = 0; j < argc; j++) {
+      d = &argv[j];
+      if (d->dir == RG_DIR_READBACK) {
+        size = d->n * get_data_size(d->type);
+        switch (d->type) {
+          case RG_TYPE_FLOAT_P:
+            cudaMemcpyAsync(d->d.fp, mems[i][j].fp, size, cudaMemcpyDeviceToHost, strms[i]);
+            break;
+          case RG_TYPE_DOUBLE_P:
+            cudaMemcpyAsync(d->d.dp, mems[i][j].dp, size, cudaMemcpyDeviceToHost, strms[i]);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  // Phase 04: Post-Processing
 
   return;
 }
@@ -135,6 +206,7 @@ wait_streams(cudaStream_t* strms, int n)
   int i;
 
   for (i = 0; i < n; i++) {
+    printf("waiting...:%p\n", &(strms[i]));
     cudaStreamSynchronize(strms[i]);
   }
 
@@ -142,61 +214,109 @@ wait_streams(cudaStream_t* strms, int n)
 }
 
 int
+ldf_pivot(railgun_task* ts, int l, int r){
+    int k = l + 1;
+    while (k <= r && ts[l].total == ts[k].total) k++;
+    if (k > r) return -1;
+    if(ts[l].total >= ts[k].total) return l;
+    return k;
+  }
+
+int
+ldf_partition(railgun_task* ts, int l, int r, railgun_task* pvt) {
+  int i = l, j = r;
+  railgun_task temp;
+
+  while (i <= j) {
+    while (i <= r && ts[i].total < pvt->total) i++;
+    while (j >= l && ts[j].total >= pvt->total) j--;
+    if (i > j) break;
+    temp = ts[i];
+    ts[i] = ts[j];
+    ts[j] = temp;
+    i++; j--;
+  }
+  return i;
+}
+
+void
+ldf_qsort(railgun_task* ts, int l, int r) {
+  int k, p;
+  if (l < r) {
+    p = ldf_pivot(ts, l, r);
+    if (p != -1) {
+      k = ldf_partition(ts, l, r, &ts[p]);
+      ldf_qsort(ts, l, k - 1);
+      ldf_qsort(ts, k, r);
+    }
+  }
+  return;
+}
+
+void
+ldf(int n, railgun_task* ts) {
+  int i, j;
+  railgun_data *d;
+
+  // Compute total data size of each task
+  for (i = 0; i < n; i++) {
+    d = ts[i].args->argv;
+    ts[i].total = 0;
+    for (j = 0; j < ts[i].args->argc; j++) {
+      ts[i].total += d[j].n * get_data_size(d[j].type);
+    }
+    printf("%d\n", ts[i].total);
+  }
+
+  // Sort tasks by their total data size
+  ldf_qsort(ts, 0, n - 1);
+
+  return;
+}
+
+int
 _execute()
 {
-  int i, j, n, total, max_i;
-  int totals[10];
-  railgun_data d;
-  railgun_task *t;
-  railgun_task *tasks[10];
+  railgun_task *tasks;
+  railgun_data *d;
   railgun_memory **mems;
   cudaStream_t *strms;
+  int i, j, task_n, total;
 
-  j = 0;
-  while (!tq.empty()) {
-    t = tq.front();
+  task_n = tq.size();
+  tasks = (railgun_task*)malloc(task_n * sizeof(railgun_task));
+  for (i = 0; i < task_n; i++) {
+    tasks[i] = tq.front();
     tq.pop();
-    tasks[j] = t;
 
-    total = 0;
-    for (i = 0; i < t->args->argc; i++) {
-      d = t->args->argv[i];
-      total += get_data_size(d.type) * d.n;
-    }
-    totals[j] = total;
-    j++;
-  }
-  n = j;
-  mems = (railgun_memory**)malloc(n * sizeof(railgun_memory*));
-  strms = (cudaStream_t*)malloc(n * sizeof(cudaStream_t));
-  for (j = 0; j < n; j++) {
-    max_i = 0;
-    for (i = 0; i < n; i++) {
-      if (totals[i] > totals[max_i]) {
-        max_i = i;
-      }
-    }
-
-    // printf("%d\n", totals[max_i]);
-    // printf("%d\n", max_i);
-
-    cudaStreamCreate(&strms[max_i]);
-    t = tasks[max_i];
-    mems[max_i] = (railgun_memory*)malloc(t->args->argc * sizeof(railgun_memory*));
-    execute_task(t, mems[max_i], &strms[max_i]);
-
-    totals[max_i] = 0;
+    // total = 0;
+    // d = tasks[i].args->argv;
+    // for (j = 0; j < tasks[i].args->argc; j++) {
+    //   total += d[i].n * get_data_size(d[i].type);
+    // }
+    // tasks[i].total = total;
   }
 
-  wait_streams(strms, n);
+  // Algorithm 01: Longest Data First
+  ldf(task_n, tasks);
 
-  // free railgun_memory(on GPU) and stream
-  for (i = 0; i < n; i++) {
-    // free(mems[i]);
+  mems = (railgun_memory**)malloc(task_n * sizeof(railgun_memory*));
+  strms = (cudaStream_t*)malloc(task_n * sizeof(cudaStream_t));
+
+  for (i = 0; i < task_n; i++) {
+    mems[i] = (railgun_memory*)malloc(tasks[i].args->argc * sizeof(railgun_memory));
+    cudaStreamCreate(&(strms[i]));
+  //   execute_task(&tasks[i], mems[i], &strms[i]);
+  //   // execute_task(&tasks[i], mems[i]);
+  }
+
+  // execute_tasks_df(task_n, tasks, mems, strms);
+  execute_tasks_bf(task_n, tasks, mems, strms);
+
+  wait_streams(strms, task_n);
+  for (i = 0; i < task_n; i++) {
     cudaStreamDestroy(strms[i]);
   }
-  // free(mems);
-  free(strms);
 
   return 0;
 }
