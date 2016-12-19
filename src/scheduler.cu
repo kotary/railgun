@@ -30,6 +30,9 @@ get_data_size(railgun_data_type t)
   case RG_TYPE_INT_P:
   case RG_TYPE_INT:
     return sizeof(int);
+  case RG_TYPE_FLOAT_P:
+  case RG_TYPE_FLOAT:
+    return sizeof(float);
   case RG_TYPE_DOUBLE_P:
   case RG_TYPE_DOUBLE:
     return sizeof(double);
@@ -38,87 +41,85 @@ get_data_size(railgun_data_type t)
   }
 }
 
-typedef void (*iii_f)(int*, int*, int*);
-typedef void (*ii_f)(int*, int*);
-typedef void (*dd_f)(double*, double*);
-typedef void (*ddd_f)(double*, double*, double*);
-typedef void (*Iddd_f)(int, double*, double*, double*);
+// typedef void (*iii_f)(int*, int*, int*);
+// typedef void (*ii_f)(int*, int*);
+// typedef void (*dd_f)(double*, double*);
+// typedef void (*ddd_f)(double*, double*, double*);
+// typedef void (*Iddd_f)(int, double*, double*, double*);
 
 void
-execute_task(railgun_task* task, railgun_memory* mem, cudaStream_t* strm)
+execute_task(railgun_task* t, railgun_memory* mem, cudaStream_t* strm)
+// execute_task(railgun_task* t, railgun_memory* mem)
 {
+  cudaError_t err = cudaSuccess;
   int i, argc;
   size_t size;
-  const char *fmt;
   railgun_args *args;
-  railgun_data *d, *argv;
+  railgun_data *argv, *d;
 
-  args = task->args;
+  args = t->args;
   argc = args->argc;
   argv = args->argv;
-  // allocate and download
+
   for (i = 0; i < argc; i++) {
     d = &argv[i];
     size = d->n * get_data_size(d->type);
     switch (d->type) {
-    case RG_TYPE_INT_P:
-      cudaMalloc((void**)&(mem[i].ip), size);
-      if (d->dir == RG_DIR_DOWNLOAD)
-        cudaMemcpyAsync(mem[i].ip, d->d.ip, size, cudaMemcpyHostToDevice, *strm);
-      break;
-    case RG_TYPE_DOUBLE_P:
-      cudaMalloc((void**)&(mem[i].dp), size);
-      if (d->dir == RG_DIR_DOWNLOAD)
-        cudaMemcpyAsync(mem[i].dp, d->d.dp, size, cudaMemcpyHostToDevice, *strm);
-      break;
-    case RG_TYPE_INT:
-      mem[i].i = d->d.i;
-      break;
-    case RG_TYPE_DOUBLE:
-      mem[i].d = d->d.d;
-      break;
-    default:
-      break;
+      case RG_TYPE_FLOAT_P:
+        cudaMalloc((void**)&(mem[i].fp), size);
+        if (d->dir == RG_DIR_DOWNLOAD)
+          cudaMemcpyAsync(mem[i].fp, d->d.fp, size, cudaMemcpyHostToDevice, *strm);
+          // cudaMemcpy(mem[i].fp, d->d.fp, size, cudaMemcpyHostToDevice);
+        break;
+      case RG_TYPE_DOUBLE_P:
+        cudaMalloc((void**)&(mem[i].dp), size);
+        if (d->dir == RG_DIR_DOWNLOAD)
+          cudaMemcpyAsync(mem[i].dp, d->d.dp, size, cudaMemcpyHostToDevice, *strm);
+          // cudaMemcpy(mem[i].dp, d->d.dp, size, cudaMemcpyHostToDevice);
+        break;
+      case RG_TYPE_INT:
+        mem[i].i = d->d.i;
+        break;
+      default:
+        break;
     }
   }
 
-  // execute
-  fmt = args->fmt;
-  if (!strcmp(fmt, "iii")) {
-    ((iii_f)task->f)<<<task->blocks, task->threads>>>(mem[0].ip, mem[1].ip, mem[2].ip);
-  } else if (!strcmp(fmt, "ii")) {
-    ((ii_f)task->f)<<<task->blocks, task->threads>>>(mem[0].ip, mem[1].ip);
-  } else if (!strcmp(fmt, "dd")) {
-    ((dd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp);
-  } else if (!strcmp(fmt, "ddd")) {
-    ((ddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].dp, mem[1].dp, mem[2].dp);
-  } else if (!strcmp(fmt, "Iddd")) {
-    ((Iddd_f)task->f)<<<task->blocks, task->threads>>>(mem[0].i, mem[1].dp, mem[2].dp, mem[3].dp);
-  }
+  // err = cudaMalloc((void**)&da, argv[1].n * sizeof(float));
+  // err = cudaMalloc((void**)&db, argv[2].n * sizeof(float));
+  // err = cudaMalloc((void**)&dc, argv[3].n * sizeof(float));
+  //
+  // err = cudaMemcpy(da, argv[1].d.fp, argv[1].n * sizeof(float), cudaMemcpyHostToDevice);
+  // err = cudaMemcpy(db, argv[2].d.fp, argv[2].n * sizeof(float), cudaMemcpyHostToDevice);
 
-  // readback
+  // ((void (*)(int,float*,float*,float*))t.f)<<<t.blocks, t.threads>>>(mem[0].i, mem[1].fp, mem[2].fp, mem[3].fp);
+  printf("now, the execution will start\n");
+  // _execute_kernel(args->fmt, t, mem, strm);
+  // _execute_kernel(args->fmt, t, mem);
+  ((void (*)(int,float*,float*,float*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].fp, mem[2].fp, mem[3].fp);
+  // ((void (*)(int,float*,float*,float*))t->f)<<<t->blocks, t->threads>>>(mem[0].i, mem[1].fp, mem[2].fp, mem[3].fp);
+  // ((void (*)(int,double*,double*,double*))t->f)<<<t->blocks, t->threads>>>(mem[0].i, mem[1].dp, mem[2].dp, mem[3].dp);
+
   for (i = 0; i < argc; i++) {
     d = &argv[i];
     if (d->dir == RG_DIR_READBACK) {
       size = d->n * get_data_size(d->type);
       switch (d->type) {
-      case RG_TYPE_INT_P:
-        cudaMemcpyAsync(d->d.ip, mem[i].ip, size, cudaMemcpyDeviceToHost, *strm);
-        break;
-      case RG_TYPE_DOUBLE_P:
-        // printf("device: d->d.dp = %p\n", d->d.dp);
-        cudaMemcpyAsync(d->d.dp, mem[i].dp, size, cudaMemcpyDeviceToHost, *strm);
-        break;
-      case RG_TYPE_INT:
-        d->d.i = mem[i].i;
-        break;
-      case RG_TYPE_DOUBLE:
-        d->d.d = mem[i].d;
-      default:
-        break;
+        case RG_TYPE_FLOAT_P:
+          cudaMemcpyAsync(d->d.fp, mem[i].fp, size, cudaMemcpyDeviceToHost, *strm);
+          // cudaMemcpy(d->d.fp, mem[i].fp, size, cudaMemcpyDeviceToHost);
+          break;
+        case RG_TYPE_DOUBLE_P:
+          cudaMemcpyAsync(d->d.dp, mem[i].dp, size, cudaMemcpyDeviceToHost, *strm);
+          // cudaMemcpy(d->d.dp, mem[i].dp, size, cudaMemcpyDeviceToHost);
+          break;
+        default:
+          break;
       }
     }
   }
+  // err = cudaMemcpy(argv[3].d.fp, dc, argv[3].n * sizeof(float), cudaMemcpyDeviceToHost);
+
 
   return;
 }

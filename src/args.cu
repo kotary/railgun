@@ -66,6 +66,18 @@ _wrap_args(const char *fmt, ...)
       argv->d.i = va_arg(ap, double);
       argv->n = va_arg(ap, int);
       break;
+    case 'F':
+      argv->type = RG_TYPE_FLOAT;
+      argv->dir = dir;
+      argv->d.f = (float)va_arg(ap, double);
+      argv->n = va_arg(ap, int);
+      break;
+    case 'f':
+      argv->type = RG_TYPE_FLOAT_P;
+      argv->dir = dir;
+      argv->d.fp = (float*)va_arg(ap, double*);
+      argv->n = va_arg(ap, int);
+      break;
     default:
       break;
     }
