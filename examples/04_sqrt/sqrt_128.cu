@@ -7,9 +7,7 @@ vector_sqrt(int n, const float *A, float *B)
 {
   int i, j;
   for (i = 0; i < n; i++) {
-    // for (j = 0; j < 10; j++) {
       B[i] = sqrtf(A[i]);
-    // }
   }
 }
 
@@ -61,6 +59,9 @@ main(void)
   free(hb);
   free(lens);
   free(sizes);
+
+  reset_railgun();
+  cudaDeviceReset();
 
   return 0;
 }

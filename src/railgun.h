@@ -1,6 +1,8 @@
 #ifndef _RAILGUN_H_
 #define _RAILGUN_H_
 
+#include "bheap.h"
+
 #include <stdarg.h>
 #include <cuda_runtime.h>
 
@@ -61,8 +63,12 @@ typedef struct {
   int (*execute)();
 } railgun_t;
 
+extern bheap* task_q;
+#define RG_TASK_Q_LEN 10
+
 /* ----- protoypes ----- */
 railgun_t* get_railgun(void);
+void reset_railgun(void);
 
 railgun_args* _wrap_args(const char* fmt, ...);
 int _schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads);

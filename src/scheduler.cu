@@ -12,22 +12,6 @@
 
 std::queue<railgun_task> tq;
 
-int
-_schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads)
-{
-  railgun_task t;
-
-  t.f = f;
-  t.args = args;
-  t.blocks = blocks;
-  t.threads = threads;
-  t.total = 0;
-
-  tq.push(t);
-
-  return 0;
-}
-
 size_t
 get_data_size(railgun_data_type t)
 {
@@ -46,11 +30,29 @@ get_data_size(railgun_data_type t)
   }
 }
 
-// typedef void (*iii_f)(int*, int*, int*);
-// typedef void (*ii_f)(int*, int*);
-// typedef void (*dd_f)(double*, double*);
-// typedef void (*ddd_f)(double*, double*, double*);
-// typedef void (*Iddd_f)(int, double*, double*, double*);
+int
+_schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads)
+{
+  railgun_task *t;
+  railgun_data *d;
+  int i;
+
+  t = (railgun_task*)malloc(sizeof(railgun_task));
+  t->f = f;
+  t->args = args;
+  t->blocks = blocks;
+  t->threads = threads;
+  t->total = 0;
+
+  d = t->args->argv;
+  for (i = 0; i < t->args->argc; i++) {
+    t->total += d[i].n * get_data_size(d[i].type);
+  }
+
+  bheap_push(task_q, t->total, t);
+
+  return 0;
+}
 
 void
 execute_task(railgun_task* t, railgun_memory* mem, cudaStream_t* strm)
@@ -283,22 +285,17 @@ _execute()
   cudaStream_t *strms;
   int i, j, task_n, total;
 
-  task_n = tq.size();
+  task_n = task_q->tail + 1;
   tasks = (railgun_task*)malloc(task_n * sizeof(railgun_task));
   for (i = 0; i < task_n; i++) {
-    tasks[i] = tq.front();
-    tq.pop();
-
     // total = 0;
     // d = tasks[i].args->argv;
     // for (j = 0; j < tasks[i].args->argc; j++) {
     //   total += d[i].n * get_data_size(d[i].type);
     // }
     // tasks[i].total = total;
+    tasks[i] = *((railgun_task*)bheap_pop(task_q).opt);
   }
-
-  // Algorithm 01: Longest Data First
-  ldf(task_n, tasks);
 
   mems = (railgun_memory**)malloc(task_n * sizeof(railgun_memory*));
   strms = (cudaStream_t*)malloc(task_n * sizeof(cudaStream_t));

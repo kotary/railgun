@@ -95,6 +95,7 @@ main(void)
     cudaFreeHost(h_E);
     cudaFreeHost(h_D);
 
+    reset_railgun();
     cudaDeviceReset();
 
     printf("Done\n");
