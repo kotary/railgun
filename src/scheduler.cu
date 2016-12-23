@@ -216,67 +216,6 @@ wait_streams(cudaStream_t* strms, int n)
 }
 
 int
-ldf_pivot(railgun_task* ts, int l, int r){
-    int k = l + 1;
-    while (k <= r && ts[l].total == ts[k].total) k++;
-    if (k > r) return -1;
-    if(ts[l].total >= ts[k].total) return l;
-    return k;
-  }
-
-int
-ldf_partition(railgun_task* ts, int l, int r, railgun_task* pvt) {
-  int i = l, j = r;
-  railgun_task temp;
-
-  while (i <= j) {
-    while (i <= r && ts[i].total < pvt->total) i++;
-    while (j >= l && ts[j].total >= pvt->total) j--;
-    if (i > j) break;
-    temp = ts[i];
-    ts[i] = ts[j];
-    ts[j] = temp;
-    i++; j--;
-  }
-  return i;
-}
-
-void
-ldf_qsort(railgun_task* ts, int l, int r) {
-  int k, p;
-  if (l < r) {
-    p = ldf_pivot(ts, l, r);
-    if (p != -1) {
-      k = ldf_partition(ts, l, r, &ts[p]);
-      ldf_qsort(ts, l, k - 1);
-      ldf_qsort(ts, k, r);
-    }
-  }
-  return;
-}
-
-void
-ldf(int n, railgun_task* ts) {
-  int i, j;
-  railgun_data *d;
-
-  // Compute total data size of each task
-  for (i = 0; i < n; i++) {
-    d = ts[i].args->argv;
-    ts[i].total = 0;
-    for (j = 0; j < ts[i].args->argc; j++) {
-      ts[i].total += d[j].n * get_data_size(d[j].type);
-    }
-    printf("%d\n", ts[i].total);
-  }
-
-  // Sort tasks by their total data size
-  ldf_qsort(ts, 0, n - 1);
-
-  return;
-}
-
-int
 _execute()
 {
   railgun_task *tasks;
@@ -288,12 +227,6 @@ _execute()
   task_n = task_q->tail + 1;
   tasks = (railgun_task*)malloc(task_n * sizeof(railgun_task));
   for (i = 0; i < task_n; i++) {
-    // total = 0;
-    // d = tasks[i].args->argv;
-    // for (j = 0; j < tasks[i].args->argc; j++) {
-    //   total += d[i].n * get_data_size(d[i].type);
-    // }
-    // tasks[i].total = total;
     tasks[i] = *((railgun_task*)bheap_pop(task_q).opt);
   }
 
@@ -303,8 +236,6 @@ _execute()
   for (i = 0; i < task_n; i++) {
     mems[i] = (railgun_memory*)malloc(tasks[i].args->argc * sizeof(railgun_memory));
     cudaStreamCreate(&(strms[i]));
-  //   execute_task(&tasks[i], mems[i], &strms[i]);
-  //   // execute_task(&tasks[i], mems[i]);
   }
 
   // execute_tasks_df(task_n, tasks, mems, strms);
