@@ -226,7 +226,12 @@ execute_tasks_bf(int n, railgun_task* ts, railgun_memory** mems, cudaStream_t* s
 
   // Phase 02: Kernel Execution
   for (i = 0; i < n; i++) {
-    ((void (*)(int,float*,float*,float*))ts[i].f)<<<ts[i].blocks, ts[i].threads, 0, strms[i]>>>(mems[i][0].i, mems[i][1].fp, mems[i][2].fp, mems[i][3].fp);
+    // printf("Kernel Execution No.%d: %s\n", i, ts[i].args->fmt);
+    if (!strcmp(ts[i].args->fmt, "Ifff")) {
+      ((void (*)(int,float*,float*,float*))ts[i].f)<<<ts[i].blocks, ts[i].threads, 0, strms[i]>>>(mems[i][0].i, mems[i][1].fp, mems[i][2].fp, mems[i][3].fp);
+    } else if (!strcmp(ts[i].args->fmt, "Iff")) {
+      ((void (*)(int,float*,float*))ts[i].f)<<<ts[i].blocks, ts[i].threads, 0, strms[i]>>>(mems[i][0].i, mems[i][1].fp, mems[i][2].fp);
+    }
   }
 
   // Phase 03: Data Transfer(GPU -> CPU)
