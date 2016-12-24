@@ -129,6 +129,62 @@ execute_task(railgun_task* t, railgun_memory* mem, cudaStream_t* strm)
   return;
 }
 
+void execute_tasks_df(int n, railgun_task* ts, railgun_memory** mems, cudaStream_t *strms)
+{
+  int i, j, size;
+  railgun_data *d, *argv;
+
+  for (i = 0; i < n; i++) {
+    // Phase 00: Pre-Processing
+    argv = ts[i].args->argv;
+
+    // Phase 01: Data Transfer
+    for (j = 0; j < ts[i].args->argc; j++) {
+      d = &argv[j];
+      size = d->n * get_data_size(d->type);
+      switch (d->type) {
+        case RG_TYPE_FLOAT_P:
+          cudaMalloc((void**)&(mems[i][j].fp), size);
+          if (d->dir == RG_DIR_DOWNLOAD)
+            cudaMemcpyAsync(mems[i][j].fp, d->d.fp, size, cudaMemcpyHostToDevice, strms[i]);
+          break;
+        case RG_TYPE_DOUBLE_P:
+          cudaMalloc((void**)&(mems[i][j].dp), size);
+          if (d->dir == RG_DIR_DOWNLOAD)
+            cudaMemcpyAsync(mems[i][j].dp, d->d.dp, size, cudaMemcpyHostToDevice, strms[i]);
+          break;
+        case RG_TYPE_INT:
+          mems[i][j].i = d->d.i;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Phase 02: Kernel Execution
+    ((void (*)(int,float*,float*,float*))ts[i].f)<<<ts[i].blocks, ts[i].threads, 0, strms[i]>>>(mems[i][0].i, mems[i][1].fp, mems[i][2].fp, mems[i][3].fp);
+
+    // Phase 03: Data Transfer(GPU -> CPU)
+    for (j = 0; j < ts[i].args->argc; j++) {
+      d = &argv[j];
+      if (d->dir == RG_DIR_READBACK) {
+        size = d->n * get_data_size(d->type);
+        switch (d->type) {
+          case RG_TYPE_FLOAT_P:
+            cudaMemcpyAsync(d->d.fp, mems[i][j].fp, size, cudaMemcpyDeviceToHost, strms[i]);
+            break;
+          case RG_TYPE_DOUBLE_P:
+            cudaMemcpyAsync(d->d.dp, mems[i][j].dp, size, cudaMemcpyDeviceToHost, strms[i]);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+  }
+}
+
 void
 execute_tasks_bf(int n, railgun_task* ts, railgun_memory** mems, cudaStream_t* strms)
 {
