@@ -86,6 +86,8 @@ _wrap_args(const char *fmt, ...)
 
   fmt_new = (char*)malloc((argc + 1) * sizeof(char));
   remove_char(fmt, '|', fmt_new);
+  fmt_new[argc] = '\0';
+  // printf("size of fmt_new(%s):%lu\n", fmt_new, sizeof(fmt_new));
   args->fmt = fmt_new;
 
   return args;
