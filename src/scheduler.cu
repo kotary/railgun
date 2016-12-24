@@ -8,7 +8,7 @@
 #define malloc GC_malloc
 #define realloc GC_realloc
 #define calloc(m,n) GC_malloc((m)*(n))
-#define free
+#define free(x)
 
 std::queue<railgun_task> tq;
 
