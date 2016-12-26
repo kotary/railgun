@@ -179,7 +179,7 @@ wait_streams(cudaStream_t* strms, int n)
   int i;
 
   for (i = 0; i < n; i++) {
-    printf("waiting...:%p\n", &(strms[i]));
+    // printf("waiting...:%p\n", &(strms[i]));
     cudaStreamSynchronize(strms[i]);
   }
 
