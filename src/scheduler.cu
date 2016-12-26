@@ -186,6 +186,15 @@ wait_streams(cudaStream_t* strms, int n)
   return;
 }
 
+void
+task_free(railgun_task* t)
+{
+  free(t->args->fmt);
+  free(t->args->argv);
+  free(t);
+  return;
+}
+
 int
 _execute()
 {
@@ -214,8 +223,13 @@ _execute()
 
   wait_streams(strms, task_n);
   for (i = 0; i < task_n; i++) {
+    free(mems[i]);
     cudaStreamDestroy(strms[i]);
+    task_free(&tasks[i]);
   }
+  free(tasks);
+  free(mems);
+  free(strms);
 
   return 0;
 }
