@@ -198,11 +198,11 @@ task_free(railgun_task* t)
 int
 _execute()
 {
-  railgun_task *tasks;
+  railgun_task *tasks, *tp;
   railgun_data *d;
-  railgun_memory **mems;
-  cudaStream_t *strms;
-  int i, j, task_n, total;
+  railgun_memory **mems, **mp;
+  cudaStream_t *strms, *sp;
+  int i, j, k, task_n, total;
 
   task_n = task_q->tail + 1;
   tasks = (railgun_task*)malloc(task_n * sizeof(railgun_task));
@@ -219,7 +219,16 @@ _execute()
   }
 
   // execute_tasks_df(task_n, tasks, mems, strms);
-  execute_tasks_bf(task_n, tasks, mems, strms);
+  // execute_tasks_bf(task_n, tasks, mems, strms);
+  tp = tasks; mp = mems; sp = strms;
+  k = 4;
+  for (i = 0; i <= (task_n-1) / k; i++) {
+    j = k;
+    if (task_n < (i+1)*k) {
+      j = task_n - i*k;
+    }
+    execute_tasks_bf(j, tp+i*k, mp+i*k, sp+i*k);
+  }
 
   wait_streams(strms, task_n);
   for (i = 0; i < task_n; i++) {
