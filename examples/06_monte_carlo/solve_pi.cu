@@ -5,7 +5,7 @@
 #include <curand_kernel.h>
 
 __global__
-void monte_pi(int seed, int n_try, float* out) {
+void monte_pi(int seed, int n_try, double* out) {
     int id = blockIdx.x * blockDim.x + threadIdx.x;
     curandState s;
 
@@ -13,14 +13,14 @@ void monte_pi(int seed, int n_try, float* out) {
 
     int inside = 0;
     for (int i = 0; i < n_try; ++i) {
-        float x = curand_uniform(&s);
-        float y = curand_uniform(&s);
+        double x = curand_uniform(&s);
+        double y = curand_uniform(&s);
         if (x * x + y * y < 1) {
             inside++;
         }
     }
 
-    out[id] = inside / static_cast<float>(n_try);
+    out[id] = inside / static_cast<double>(n_try);
 }
 
 int main() {
@@ -29,14 +29,14 @@ int main() {
     int const n = n_thread * n_block;
     int const n_try = 1000;
 
-    float *out;
-    cudaHostAlloc((void**)&out, n*sizeof(float), cudaHostAllocDefault);
+    double *out;
+    cudaHostAlloc((void**)&out, n*sizeof(double), cudaHostAllocDefault);
 
     railgun_t *rg;
     railgun_args *args;
 
     rg = get_railgun();
-    args = rg->wrap_args("II|f", 0, 1, n_try, 1, out, n);
+    args = rg->wrap_args("II|d", 0, 1, n_try, 1, out, n);
     rg->schedule((void*)monte_pi, args, n_thread, n_block);
     rg->execute();
 
