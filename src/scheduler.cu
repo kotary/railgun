@@ -46,10 +46,12 @@ _schedule(void* f, railgun_args* args, dim3 blocks, dim3 threads)
 
   d = t->args->argv;
   for (i = 0; i < t->args->argc; i++) {
-    t->total += d[i].n * get_data_size(d[i].type);
+    if (d->dir == RG_DIR_DOWNLOAD) {
+      t->total += d[i].n * get_data_size(d[i].type);
+    }
   }
 
-  bheap_push(task_q, t->total, t);
+  bheap_push(task_q, -(t->total), t);
 
   return 0;
 }
