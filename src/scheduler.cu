@@ -64,6 +64,18 @@ kernel_call(railgun_task* t, railgun_memory* mem, cudaStream_t* strm)
     ((void (*)(int,float*,float*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].fp, mem[2].fp);
   } else if (!strcmp(t->args->fmt, "Ifff")) {
     ((void (*)(int,float*,float*,float*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].fp, mem[2].fp, mem[3].fp);
+  } else if (!strcmp(t->args->fmt, "Iddd")) {
+    ((void (*)(int,double*,double*,double*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].dp, mem[2].dp, mem[3].dp);
+  } else if (!strcmp(t->args->fmt, "IIIddd")) {
+    ((void (*)(int,int,int,double*,double*,double*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].i, mem[2].i, mem[3].dp, mem[4].dp, mem[5].dp);
+  } else if (!strcmp(t->args->fmt, "IIIfff")) {
+    ((void (*)(int,int,int,float*,float*,float*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].i, mem[2].i, mem[3].fp, mem[4].fp, mem[5].fp);
+  } else if (!strcmp(t->args->fmt, "IId")) {
+    ((void (*)(int,int,double*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].i, mem[2].dp);
+  } else if (!strcmp(t->args->fmt, "IIdd")) {
+    ((void (*)(int,int,double*,double*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].i, mem[2].dp, mem[3].dp);
+  } else if (!strcmp(t->args->fmt, "Idd")) {
+    ((void (*)(int,double*,double*))t->f)<<<t->blocks, t->threads, 0, *strm>>>(mem[0].i, mem[1].dp, mem[2].dp);
   }
   return;
 }
