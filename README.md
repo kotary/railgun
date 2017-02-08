@@ -20,7 +20,22 @@ project is to free you from considering it. Railgun determines the order instead
 of you to execute your tasks for effective use of GPU resources.  
 
 ## Examples
-Under construction...
+```
+__global__ void matrix_add(int width, int height, double* A, double* B, double* C);
+
+...
+
+railgun_t *rg;
+railgun_args *args;
+int w, h;
+double *hA, *hB, *hC;
+
+...(set values into w, h, hA, hB and hC.)
+
+rg = get_railgun();
+args = rg->wrap_args("IIdd|d", w, 1, h, 1, hostA, w * h, hostB, w * h, hostC, w * h); 
+rg->schedule((void*)matrix_add, args, dim3(1, 1), dim3(w, h));
+```
 
 ## Build
 If you have GPU on remote machine, please execute deploy.sh.  
