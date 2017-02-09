@@ -35,6 +35,7 @@ double *hA, *hB, *hC;
 rg = get_railgun();
 args = rg->wrap_args("IIdd|d", w, 1, h, 1, hostA, w * h, hostB, w * h, hostC, w * h); 
 rg->schedule((void*)matrix_add, args, dim3(1, 1), dim3(w, h));
+rg->reset_railgun();
 ```
 
 ## Build
