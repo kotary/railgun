@@ -33,8 +33,18 @@ double *hA, *hB, *hC;
 ...(set values into w, h, hA, hB and hC.)
 
 rg = get_railgun();
+
+// Task 1
 args = rg->wrap_args("IIdd|d", w, 1, h, 1, hostA, w * h, hostB, w * h, hostC, w * h); 
 rg->schedule((void*)matrix_add, args, dim3(1, 1), dim3(w, h));
+
+// Task 2
+args = rg->wrap_args("IIdd|d", w, 1, h, 1, hostA, w * h, hostB, w * h, hostC, w * h); 
+rg->schedule((void*)matrix_add, args, dim3(1, 1), dim3(w, h));
+
+// Task1 and Task 2 is executed concurrently.
+rg->execute();
+
 rg->reset_railgun();
 ```
 
