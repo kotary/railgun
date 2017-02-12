@@ -67,4 +67,4 @@ gitter for more active conversation.
 
 ## License
 
-MIT license (© 2016 Ryota Kota)
+MIT license (© 2017 Ryota Kota)
