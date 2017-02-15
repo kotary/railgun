@@ -65,6 +65,9 @@ idea for this project. Feel free to contribute your code to the project. You can
 use <http://github.com/rk0der/railgun/issues> for discussion. You can also use  
 gitter for more active conversation.  
 
+## See also
+[rk0der/bheap](https://github.com/rk0der/bheap): general-purpose implementation of task queue in railgun
+
 ## License
 
 MIT license (© 2017 Ryota Kota)
