@@ -66,7 +66,7 @@ use <http://github.com/rk0der/railgun/issues> for discussion. You can also use
 gitter for more active conversation.  
 
 ## See also
-[rk0der/bheap](https://github.com/rk0der/bheap): general-purpose implementation of task queue in railgun
+[rk0der/bheap](https://github.com/rk0der/bheap): general-purpose implementation of task queue in railgun  
 [Implementation and Evaluation of Data Transfer Scheduling in CUDA](): thesis (written in Japanese)
 
 ## License
