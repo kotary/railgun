@@ -1,6 +1,5 @@
 # Railgun
 
-[![Gitter](https://badges.gitter.im/rk0der/railgun.svg)](https://gitter.im/rk0der/railgun?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![The MIT License](https://img.shields.io/badge/license-MIT-orange.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 
 
@@ -14,10 +13,10 @@
                  |___/                - - - - - - - - - - - - - - - - - - - - -
 ```
 
-Railgun is a task scheduler for CUDA C. We can overlap kernel executions for  
-high performance, but it is difficult to decide the order. The goal of this  
-project is to free you from considering it. Railgun determines the order instead  
-of you to execute your tasks for effective use of GPU resources.  
+Railgun is a task scheduler for CUDA C. We can overlap kernel executions for
+high performance, but it is difficult to decide the order. The goal of this
+project is to free you from considering it. Railgun determines the order instead
+of you to execute your tasks for effective use of GPU resources.
 
 ## Examples
 ```
@@ -49,26 +48,32 @@ rg->reset_railgun();
 ```
 
 ## Build
-If you have GPU on remote machine, please execute deploy.sh.  
+If you have GPU on remote machine, please execute deploy.sh.
+
 ```
 ./deploy.sh [REMOTE_HOST] [REMOTE_DIR] [MAIN_FILE]
 ```
-REMOTE_HOST:host which you execute the program. ex)foo@example.com or IP address   
-REMOTE_DIR:directory you deploy the program. ex) /home/yourname/projects  
-MAIN_FILE:file includes the main function  
 
-If you develop the program on a host has GPU, just execute make command.  
+REMOTE_HOST:host which you execute the program. ex)foo@example.com or IP address
+
+REMOTE_DIR:directory you deploy the program. ex) /home/yourname/projects
+
+MAIN_FILE:file includes the main function
+
+If you develop the program on a host has GPU, just execute make command.
 
 ## Contributing
-Send a pull request to <http://github.com/rk0der/railgun>. We welcome your great  
-idea for this project. Feel free to contribute your code to the project. You can  
-use <http://github.com/rk0der/railgun/issues> for discussion. You can also use  
-gitter for more active conversation.  
+Send a pull request to <http://github.com/kotary/railgun>.
+We welcome your great idea for this project. Feel free to
+contribute your code to the project. 
+You can use <http://github.com/kotary/railgun/issues> for discussion. 
 
 ## See also
-[rk0der/bheap](https://github.com/rk0der/bheap): general-purpose implementation of task queue in railgun  
+
+[kotary/bheap](https://github.com/kotary/bheap): general-purpose implementation of task queue in railgun
+
 [Implementation and Evaluation of Data Transfer Scheduling in CUDA](): thesis (written in Japanese)
 
 ## License
 
-MIT license (© 2017 Ryota Kota)
+MIT license (© 2019 Ryota Kota)
