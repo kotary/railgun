@@ -7,7 +7,7 @@
 +++
   ____       _ _                   
  |  _ \ __ _(_) | __ _ _   _ _ __           _____                   ""',,. ,
- | |_) / _` | | |/ _` | | | | '_ \       __( R.K.)============:: o''        ''>
+ | |_) / _` | | |/ _` | | | | '_ \       __(     )============:: o''        ''>
  |  _ < (_| | | | (_| | |_| | | | | - -_|~~~~~~~~~~~\___  - - - -''.....""- -
  |_| \_\__,_|_|_|\__, |\__,_|_| |_| \\ \o-o_o-o_o-o_o-o_\ \\  \\  \\  \\  \\  \
                  |___/                - - - - - - - - - - - - - - - - - - - - -
@@ -63,16 +63,16 @@ MAIN_FILE:file includes the main function
 If you develop the program on a host has GPU, just execute make command.
 
 ## Contributing
-Send a pull request to <http://github.com/kotary/railgun>.
+Send a pull request to <http://github.com/rkoder/railgun>.
 We welcome your great idea for this project. Feel free to
 contribute your code to the project. 
-You can use <http://github.com/kotary/railgun/issues> for discussion. 
+You can use <http://github.com/rkoder/railgun/issues> for discussion. 
 
 ## See also
 
-[kotary/bheap](https://github.com/kotary/bheap): general-purpose implementation of task queue in railgun
+[rkoder/bheap](https://github.com/rkoder/bheap): general-purpose implementation of task queue in railgun
 
-[Implementation and Evaluation of Data Transfer Scheduling in CUDA](): thesis (written in Japanese)
+[Implementation and Evaluation of Data Transfer Scheduling in CUDA](https://ipsj.ixsq.nii.ac.jp/ej/?action=pages_view_main&active_action=repository_view_main_item_detail&item_id=180525&item_no=1&page_id=13&block_id=8): thesis (written in Japanese)
 
 ## License
 
